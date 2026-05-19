@@ -24,21 +24,89 @@
         }
         
         /* 🌌 우주 배경 오버레이 및 행성들 */
-        .space-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%); opacity: 0; transition: opacity 1.5s ease-in-out; z-index: -1; pointer-events: none; }
+        .space-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
         body.space-mode .space-bg { opacity: 1; }
-        .star { position: absolute; width: 3px; height: 3px; background: #fff; border-radius: 50%; box-shadow: 0 0 10px #fff, 0 0 20px #fff; opacity: 0; animation: shooting 3s linear infinite; display: none; }
-        body.space-mode .star { display: block; }
-        .star::before { content: ''; position: absolute; top: 50%; transform: translateY(-50%); right: 0; width: 80px; height: 1.5px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8)); }
-        @keyframes shooting { 0% { transform: translate(100vw, -10vw) rotate(45deg); opacity: 1; } 100% { transform: translate(-20vw, 100vh) rotate(45deg); opacity: 0; } }
 
-        /* 행성 */
-        .planet { position: absolute; opacity: 0; transform: translateY(50px) scale(0.8); transition: opacity 2s ease-in-out, transform 2s ease-out; }
-        body.space-mode .planet { opacity: 1; transform: translateY(0) scale(1); animation: float-planet 6s ease-in-out infinite alternate; }
-        @keyframes float-planet { 0% { transform: translateY(0px); } 100% { transform: translateY(-15px); } }
-        .sun { width: 60px; height: 60px; background: radial-gradient(circle, #ffea00 20%, #ff8800 80%); border-radius: 50%; top: 5%; left: 3%; box-shadow: 0 0 40px #ffaa00, 0 0 80px #ffaa00; }
-        .moon { width: 45px; height: 45px; background: transparent; border-radius: 50%; top: 10%; right: 5%; box-shadow: inset 12px -12px 0 0 #f5f6fa, 0 0 15px rgba(255,255,255,0.2); animation-delay: 1s; }
-        .saturn { width: 40px; height: 40px; background: linear-gradient(135deg, #e6b981, #c4965c); border-radius: 50%; bottom: 15%; left: 5%; box-shadow: inset -8px -8px 15px rgba(0,0,0,0.5); animation-delay: 2s; }
-        .saturn::after { content: ''; position: absolute; top: 50%; left: 50%; width: 70px; height: 12px; border: 5px solid #d4a373; border-radius: 50%; transform: translate(-50%, -50%) rotate(25deg); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        /* 🌠 별똥별 */
+        .star {
+            position: absolute;
+            width: 3px; height: 3px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #fff, 0 0 20px #fff;
+            opacity: 0;
+            animation: shooting 3s linear infinite;
+            display: none;
+        }
+        body.space-mode .star { display: block; }
+        .star::before {
+            content: ''; position: absolute; top: 50%; transform: translateY(-50%); right: 0;
+            width: 80px; height: 1.5px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8));
+        }
+        @keyframes shooting {
+            0% { transform: translate(100vw, -10vw) rotate(45deg); opacity: 1; }
+            100% { transform: translate(-20vw, 100vh) rotate(45deg); opacity: 0; }
+        }
+
+        /* 🌞 태양, 🌙 달, 🪐 행성 */
+        .planet {
+            position: absolute;
+            opacity: 0;
+            transform: translateY(50px) scale(0.8);
+            transition: opacity 2s ease-in-out, transform 2s ease-out;
+        }
+        body.space-mode .planet {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            animation: float-planet 6s ease-in-out infinite alternate;
+        }
+        @keyframes float-planet {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-15px); }
+        }
+
+        .sun {
+            width: 60px; height: 60px;
+            background: radial-gradient(circle, #ffea00 20%, #ff8800 80%);
+            border-radius: 50%;
+            top: 5%; left: 3%;
+            box-shadow: 0 0 40px #ffaa00, 0 0 80px #ffaa00;
+        }
+        
+        .moon {
+            width: 45px; height: 45px;
+            background: transparent;
+            border-radius: 50%;
+            top: 10%; right: 5%;
+            box-shadow: inset 12px -12px 0 0 #f5f6fa, 0 0 15px rgba(255,255,255,0.2);
+            animation-delay: 1s; 
+        }
+
+        .saturn {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #e6b981, #c4965c);
+            border-radius: 50%;
+            bottom: 15%; left: 5%;
+            box-shadow: inset -8px -8px 15px rgba(0,0,0,0.5);
+            animation-delay: 2s;
+        }
+        .saturn::after {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            width: 70px; height: 12px;
+            border: 5px solid #d4a373;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) rotate(25deg);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
 
         /* 💥 지진 효과 */
         @keyframes earthquake {
@@ -51,9 +119,23 @@
         }
         .shake-screen { animation: earthquake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
 
-        /* 카드 UI */
-        .card { background: white; border-radius: 24px; padding: 25px 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); text-align: center; max-width: 440px; width: 100%; z-index: 10; position: relative; margin-top: auto; margin-bottom: auto; transition: background 1.5s, box-shadow 1.5s, border 1.5s, backdrop-filter 1.5s; }
-        body.space-mode .card { background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 1px solid rgba(255, 255, 255, 0.15); }
+        /* 카드 UI 기본 스타일 */
+        .card { 
+            background: white; border-radius: 24px; padding: 25px 20px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08); text-align: center; 
+            max-width: 440px; width: 100%; z-index: 10; position: relative; margin-top: auto; margin-bottom: auto; 
+            transition: background 1.5s, box-shadow 1.5s, border 1.5s, backdrop-filter 1.5s; 
+        }
+
+        /* 🚀 우주 모드 글래스모피즘 */
+        body.space-mode .card {
+            background: rgba(15, 23, 42, 0.4); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.15); 
+        }
+
         .header h1 { color: #2c3e50; margin: 0 0 5px 0; font-size: 24px; font-weight: 800; transition: color 1.5s; }
         body.space-mode .header h1 { color: #ffffff; } 
         .header .subtitle { color: #8da3b9; font-weight: 600; margin: 0 0 15px 0; font-size: 14px; transition: color 1s; }
@@ -66,65 +148,64 @@
         .stage { height: 280px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; position: relative; transition: border-color 1.5s; }
         body.space-mode .stage { border-bottom: 2px solid rgba(255,255,255,0.2); }
 
-        /* 캐릭터 기본 구조 */
         .character-container { position: relative; transform-origin: bottom center; transition: transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
         .character { display: flex; flex-direction: column; align-items: center; position: relative; }
         .head-wrapper { position: relative; z-index: 4; transform-origin: bottom center; transition: transform 0.1s ease-out; }
         
-        /* 💡 얼굴 & 대두 외계인(Alien) 효과 */
-        .head { width: 45px; height: 55px; background: #ffe0bd; border-radius: 40% 40% 50% 50%; position: relative; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.1); cursor: pointer; transition: background 0.5s ease; }
-        .eyes { position: absolute; top: 20px; left: 0; width: 100%; text-align: center; font-size: 16px; line-height: 1; opacity: 0; transition: opacity 0.2s; z-index: 1; pointer-events: none; }
-        .eyes.show { opacity: 1; }
+        /* 💡 이스터에그: 얼굴 터치 관련 CSS */
+        .head { 
+            width: 45px; height: 55px; background: #ffe0bd; border-radius: 40% 40% 50% 50%; 
+            position: relative; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.1); 
+            cursor: pointer; /* 클릭 가능 표시 */
+        }
         
-        .third-eye { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); font-size: 16px; opacity: 0; transition: opacity 0.5s; z-index: 10; pointer-events: none; }
-        body.alien-mode .third-eye { opacity: 1; } /* 외계인 모드 시 개안 */
+        .eyes {
+            position: absolute;
+            top: 20px; left: 0; width: 100%;
+            text-align: center; font-size: 16px; line-height: 1;
+            opacity: 0; /* 평소엔 숨김 */
+            transition: opacity 0.2s;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .eyes.show { opacity: 1; } /* 당황한 눈 보이기 */
 
-        .sunglasses { position: absolute; top: 22px; left: 5px; width: 35px; height: 10px; background: #222; border-radius: 3px; z-index: 2; transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s; transform-origin: left center; }
-        .sunglasses::after { content: ''; position: absolute; top: 0; left: 15px; width: 5px; height: 10px; background: #ffe0bd; transition: background 0.5s; }
-        body.alien-mode .sunglasses { transform: rotate(-30deg) translateY(5px); } /* 선글라스 삐뚤어짐 */
-        .sunglasses.fly-away { transform: translate(150px, -200px) rotate(1080deg) scale(1.5) !important; opacity: 0; }
-
-        /* 💡 몸통 & 근육 몬스터(Muscle) 효과 */
-        .torso { width: 50px; height: 75px; background: #8d5524; border-radius: 15px 15px 5px 5px; margin-top: -5px; position: relative; z-index: 3; display: flex; justify-content: center; align-items: center; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.05); cursor: pointer; transition: background 0.5s ease; }
+        .sunglasses { 
+            position: absolute; top: 22px; left: 5px; width: 35px; height: 10px; 
+            background: #222; border-radius: 3px; z-index: 2;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s;
+            transform-origin: center;
+        }
+        .sunglasses::after { content: ''; position: absolute; top: 0; left: 15px; width: 5px; height: 10px; background: #ffe0bd; }
         
-        /* 숨겨진 구릿빛 복근 */
-        .muscle-abs { position: absolute; top: 25px; font-size: 22px; opacity: 0; transition: opacity 0.5s ease; pointer-events: none; }
-        body.muscle-mode .muscle-abs { opacity: 1; }
+        /* 선글라스 날아가는 애니메이션 클래스 */
+        .sunglasses.fly-away {
+            transform: translate(150px, -200px) rotate(1080deg) scale(1.5);
+            opacity: 0;
+        }
 
-        /* 후드티를 반으로 쪼갬 */
-        .hoodie-half { position: absolute; top: 0; height: 100%; width: 50%; background: #f5f0e1; z-index: 4; transition: transform 0.5s ease, opacity 0.5s ease; pointer-events: none; }
-        .hoodie-left { left: 0; border-radius: 15px 0 0 5px; transform-origin: top left; }
-        .hoodie-right { right: 0; border-radius: 0 15px 5px 0; transform-origin: top right; }
+        /* 💡 이스터에그: 몸통 터치 관련 CSS */
+        .torso { 
+            width: 50px; height: 75px; background: #f5f0e1; border-radius: 15px 15px 5px 5px; margin-top: -5px; 
+            position: relative; z-index: 3; display: flex; justify-content: center; align-items: center; 
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.05);
+            cursor: pointer; /* 클릭 가능 표시 */
+        }
+        .torso::before { content: 'KOREA Univ.'; color: #8b0029; font-size: 10px; font-weight: 900; position: absolute; top: 25px; }
         
-        /* 100kg 돌파 시 후드티 찢어짐 애니메이션 */
-        body.muscle-mode .hoodie-left { transform: rotate(-30deg) translate(-20px, 10px); opacity: 0; }
-        body.muscle-mode .hoodie-right { transform: rotate(30deg) translate(20px, 10px); opacity: 0; }
-
-        /* KOREA 로고 배치 */
-        .logo-part { position: absolute; top: 25px; color: #8b0029; font-size: 10px; font-weight: 900; }
-        .hoodie-left .logo-part { right: 0; }
-        .hoodie-right .logo-part { left: 0; }
-
-        /* 팔, 손, 다리 설정 */
-        .arm-left, .arm-right { position: absolute; background: #f5f0e1; width: 60px; height: 16px; border-radius: 8px; z-index: 2; pointer-events: none; transition: background 0.5s ease; }
+        .arm-left, .arm-right { position: absolute; background: #f5f0e1; width: 60px; height: 16px; border-radius: 8px; z-index: 2; pointer-events: none; }
         .arm-left { left: -50px; top: 15px; transform-origin: right center; }
         .arm-right { right: -45px; top: -5px; transform: rotate(-40deg); transform-origin: left center; }
-        .hand { position: absolute; width: 14px; height: 14px; background: #ffe0bd; border-radius: 50%; transition: background 0.5s ease; }
+        .hand { position: absolute; width: 14px; height: 14px; background: #ffe0bd; border-radius: 50%; }
         .arm-left .hand { left: -5px; top: 1px; }
         .arm-right .hand { right: -5px; top: 1px; }
-        
-        /* 근육 진화 시 피부/팔 색상 구릿빛으로 변경 */
-        body.muscle-mode .head, body.muscle-mode .hand { background: #8d5524; }
-        body.muscle-mode .sunglasses::after { background: #8d5524; }
-        body.muscle-mode .arm-left, body.muscle-mode .arm-right { background: #8d5524; }
-
         .legs-wrapper { display: flex; gap: 6px; height: 80px; transition: height 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 1; margin-top: -5px; pointer-events: none; }
         .leg { width: 20px; height: 100%; background: #2c3e50; border-radius: 3px 3px 0 0; position: relative; }
         .shoe { position: absolute; bottom: 0; left: -2px; width: 24px; height: 12px; background: #eee; border-radius: 6px 6px 2px 2px; }
 
-        /* 스탯 및 버튼 */
         .stats-display { display: flex; justify-content: space-around; margin: 5px 0 20px 0; background: #fafbfc; padding: 10px; border-radius: 14px; transition: background 1.5s; }
         body.space-mode .stats-display { background: rgba(0, 0, 0, 0.3); }
+
         .stat-box { display: flex; flex-direction: column; align-items: center; }
         .stat-value { font-size: 24px; font-weight: 900; letter-spacing: -1px; }
         .stat-value.height { color: #ff6b6b; text-shadow: 2px 2px 0px rgba(255, 107, 107, 0.1); }
@@ -152,6 +233,7 @@
         <div class="star" style="top: 25%; animation-delay: 1.5s;"></div>
         <div class="star" style="top: -5%; animation-delay: 0.7s;"></div>
         <div class="star" style="top: 45%; animation-delay: 2.2s;"></div>
+        
         <div class="planet sun"></div>
         <div class="planet moon"></div>
         <div class="planet saturn"></div>
@@ -173,22 +255,14 @@
                 <div class="character">
                     <div class="head-wrapper" id="headWrapper">
                         <div class="head" id="headClickArea">
-                            <div class="third-eye">👁️</div>
                             <div class="eyes" id="hiddenEyes">👀</div>
                             <div class="sunglasses" id="sunglassesProp"></div>
                         </div>
                     </div>
-                    
                     <div class="torso" id="torsoClickArea">
-                        <div class="muscle-abs">💪🏽</div>
-                        
-                        <div class="hoodie-half hoodie-left"><span class="logo-part">KO</span></div>
-                        <div class="hoodie-half hoodie-right"><span class="logo-part">REA</span></div>
-
                         <div class="arm-left"><div class="hand"></div></div>
                         <div class="arm-right"><div class="hand"></div></div>
                     </div>
-
                     <div class="legs-wrapper" id="characterLegs">
                         <div class="leg"><div class="shoe"></div></div>
                         <div class="leg"><div class="shoe"></div></div>
@@ -241,68 +315,68 @@
         const btnWeight = document.getElementById('btnWeight');
         const btnBrain = document.getElementById('btnBrain');
 
-        // 이스터에그 클릭 요소
+        // 이스터에그 관련 엘리먼트
         const headClickArea = document.getElementById('headClickArea');
         const hiddenEyes = document.getElementById('hiddenEyes');
         const sunglassesProp = document.getElementById('sunglassesProp');
         const torsoClickArea = document.getElementById('torsoClickArea');
 
-        // 💡 얼굴 터치
+        // 💡 1. 얼굴 터치 이스터에그 이벤트
         headClickArea.addEventListener('click', function(e) {
+            // 이미 선글라스가 날아가고 있는 중이면 중복 실행 방지
             if(sunglassesProp.classList.contains('fly-away')) return;
+            
+            // 선글라스 날리기 & 눈 보이기 클래스 추가
             sunglassesProp.classList.add('fly-away');
             hiddenEyes.classList.add('show');
+            
+            // 2초 뒤에 원래대로 복구
             setTimeout(() => {
                 sunglassesProp.classList.remove('fly-away');
                 hiddenEyes.classList.remove('show');
             }, 2000);
         });
 
-        // 💡 몸통 터치
+        // 💡 2. 몸통 터치 이스터에그 이벤트
         torsoClickArea.addEventListener('click', function(e) {
+            // 응원가 텍스트 팝업 (크림슨 색상)
             createFloatingText(e.clientX, e.clientY, '민족고대! 🐯', '#8b0029');
         });
 
-        // 🦒 키 크기
         btnHeight.addEventListener('click', function(e) {
             currentHeight += 0.5;
             visualLegsHeight += 6; 
             
             if(currentHeight >= 200.0 && !document.body.classList.contains('space-mode')) {
                 document.body.classList.add('space-mode');
-                updateSubtitle("🌌 태양계를 넘나드는 혁진이!", "#f1c40f");
+                subtitleEl.innerText = "🌌 태양계를 넘나드는 혁진이!";
+                subtitleEl.style.color = "#f1c40f"; 
             }
             
             if(currentHeight >= 215.0) {
                 alert("혁진이의 머리가 대기권을 돌파해버렸습니다! 🚀 다리 길이가 초기화됩니다.");
-                visualLegsHeight = 80; currentHeight = 189.0;
+                
+                visualLegsHeight = 80;
+                currentHeight = 189.0;
                 document.body.classList.remove('space-mode');
-                resetSubtitle();
+                subtitleEl.innerText = "189cm 40kg의 기적";
+                subtitleEl.style.color = "#8da3b9";
             }
             
             heightEl.innerText = currentHeight.toFixed(1);
             legsEl.style.height = visualLegsHeight + 'px';
+            
             createFloatingText(e.clientX, e.clientY, '+0.5cm!', '#ff6b6b');
         });
 
-        // 🍔 살 찌우기 (+ 근육 몬스터 진화)
         btnWeight.addEventListener('click', function(e) {
             currentWeight += 1.0;
             visualScaleX += 0.05; 
             
-            // 🦍 100kg 돌파 시 특수 진화
-            if(currentWeight >= 100.0 && !document.body.classList.contains('muscle-mode')) {
-                document.body.classList.add('muscle-mode');
-                updateSubtitle("🦍 압도적인 근육 몬스터 진화!", "#d35400");
-                createFloatingText(e.clientX, e.clientY, '찌직! 💥', '#d35400');
-            }
-
-            // 바닥 붕괴 (110kg 돌파 시)
-            if(visualScaleX > 4.5) {
+            if(visualScaleX > 2.5) {
                 alert("너무 무거워져서 지각 변동이 일어났습니다! 💥 몸무게가 초기화됩니다.");
-                visualScaleX = 1.0; currentWeight = 40.0;
-                document.body.classList.remove('muscle-mode'); // 근육 모드 해제
-                resetSubtitle();
+                visualScaleX = 1.0;
+                currentWeight = 40.0;
             }
             
             weightEl.innerText = currentWeight.toFixed(1);
@@ -311,42 +385,25 @@
             document.body.classList.remove('shake-screen');
             void document.body.offsetWidth; 
             document.body.classList.add('shake-screen');
+            
             createFloatingText(e.clientX, e.clientY, '+1kg!', '#f39c12');
         });
 
-        // 🎓 과제하기 (+ 대두 외계인 진화)
         btnBrain.addEventListener('click', function(e) {
             brainLevel += 1;
             visualHeadScale += 0.15; 
             
-            // 👽 지식 레벨 12 돌파 시 특수 진화
-            if(brainLevel >= 12 && !document.body.classList.contains('alien-mode')) {
-                document.body.classList.add('alien-mode');
-                updateSubtitle("👽 뇌압 폭발! 외계인 개안!", "#9b59b6");
-            }
-
-            // 머리 대폭발
-            if(visualHeadScale > 3.5) {
+            if(visualHeadScale > 3.25) {
                 alert("과제와 지식이 너무 많아 혁진이의 머리가 폭발했습니다! 🤯 지식이 리셋됩니다.");
-                visualHeadScale = 1.0; brainLevel = 1;
-                document.body.classList.remove('alien-mode'); // 외계인 모드 해제
-                resetSubtitle();
+                visualHeadScale = 1.0;
+                brainLevel = 1;
             }
             
             brainEl.innerText = 'Lv.' + brainLevel;
             headWrapperEl.style.transform = `scale(${visualHeadScale})`;
+            
             createFloatingText(e.clientX, e.clientY, '+지식! 📝', '#9b59b6');
         });
-
-        function updateSubtitle(text, color) {
-            subtitleEl.innerText = text;
-            subtitleEl.style.color = color;
-        }
-
-        function resetSubtitle() {
-            subtitleEl.innerText = "189cm 40kg의 기적";
-            subtitleEl.style.color = document.body.classList.contains('space-mode') ? "#94a3b8" : "#8da3b9";
-        }
 
         function createFloatingText(x, y, text, color) {
             const floatText = document.createElement('div');
@@ -356,17 +413,21 @@
             
             const posX = x || window.innerWidth / 2;
             const posY = y || window.innerHeight / 2;
+
             const offsetX = (Math.random() - 0.5) * 60;
-            
             floatText.style.left = (posX - 40 + offsetX) + 'px';
             floatText.style.top = (posY - 30) + 'px';
+            
             document.body.appendChild(floatText);
             
             requestAnimationFrame(() => {
                 floatText.style.transform = 'translateY(-120px) scale(1.2)';
                 floatText.style.opacity = '0';
             });
-            setTimeout(() => floatText.remove(), 600);
+            
+            setTimeout(() => {
+                floatText.remove();
+            }, 600);
         }
     </script>
 </body>
