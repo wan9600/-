@@ -1217,9 +1217,13 @@ const actions = {
     async share(el) {
         const url = location.href.split('#')[0] + '#/post/' + el.dataset.id;
         try {
-            if (navigator.share) await navigator.share({ title: postById(el.dataset.id)?.title, url });
-            else { await navigator.clipboard.writeText(url); toast('링크를 복사했어요.'); }
-        } catch { /* 사용자가 취소 */ }
+            await navigator.clipboard.writeText(url);
+            toast('링크를 복사했어요.');
+        } catch {
+            openModal(`<h3>링크 복사</h3><input class="input" id="shareUrl" value="${esc(url)}" readonly>
+                <div class="modal-actions"><button class="btn" data-act="closeModal">닫기</button></div>`);
+            $('#shareUrl')?.select();
+        }
     },
     report(el) { openReportModal(el.dataset.id, null); },
     reportUser(el) { openReportModal(el.dataset.post || '', el.dataset.id); },
