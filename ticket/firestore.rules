@@ -1,0 +1,204 @@
+rules_version = '2';
+
+// 고연전 티켓 장터 Firestore 보안 규칙
+// 클라이언트 검사와 별개로, 여기서 정가 초과·권한 없는 수정·타인 채팅 열람 등을 서버에서 막는다.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+    function docPath(p) { return path('/databases/' + database + '/documents/' + p); }
+
+    // 가입 가능한 학교 메일 (firebase-config.js 의 SCHOOL_DOMAINS 와 맞춰야 함)
+    function schoolEmail() {
+      return signedIn() && request.auth.token.email is string
+        && request.auth.token.email.lower().matches('.*@(korea|yonsei)[.]ac[.]kr');
+    }
+    function schoolOf(email) {
+      return email.lower().matches('.*@korea[.]ac[.]kr') ? 'KU' : 'YU';
+    }
+    function verified() { return schoolEmail() && request.auth.token.email_verified == true; }
+    function isAdmin() { return signedIn() && exists(/databases/$(database)/documents/admins/$(me())); }
+    // 메일 인증 + 프로필 있음 + 이용 제한 아님
+    function active() {
+      return verified()
+        && exists(/databases/$(database)/documents/users/$(me()))
+        && get(/databases/$(database)/documents/users/$(me())).data.banned != true;
+    }
+    function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+
+    // ---------- 회원 ----------
+    function validProfile(d) {
+      return d.nickname is string && d.nickname.size() >= 2 && d.nickname.size() <= 12
+        && d.year is string && (d.year == '' || d.year.matches('[0-9]{2}'));
+    }
+    match /users/{uid} {
+      allow read: if true;
+      allow create: if schoolEmail() && me() == uid
+        && request.resource.data.keys().hasOnly(['nickname', 'school', 'year', 'createdAt', 'banned'])
+        && validProfile(request.resource.data)
+        && request.resource.data.school == schoolOf(request.auth.token.email)
+        && request.resource.data.banned == false
+        && request.resource.data.createdAt is int;
+      allow update: if (signedIn() && me() == uid && changed().hasOnly(['nickname', 'year']) && validProfile(request.resource.data))
+        || (isAdmin() && changed().hasOnly(['banned']) && request.resource.data.banned is bool);
+      allow delete: if signedIn() && me() == uid;
+
+      match /notifs/{nid} {
+        allow read, update, delete: if signedIn() && me() == uid;
+        allow create: if active()
+          && request.resource.data.keys().hasOnly(['text', 'link', 'at', 'read', 'from'])
+          && request.resource.data.from == me()
+          && request.resource.data.text is string && request.resource.data.text.size() <= 200
+          && request.resource.data.link is string && request.resource.data.link.matches('#/.*')
+          && request.resource.data.read == false;
+      }
+    }
+
+    // 관리자 목록은 콘솔에서 직접 문서를 만든다 (admins/{관리자 uid})
+    match /admins/{uid} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // 찜 목록 등 본인만 보는 정보
+    match /privates/{uid} {
+      allow read, write: if signedIn() && me() == uid;
+    }
+
+    // ---------- 거래글 ----------
+    function postKeys() {
+      return ['authorId', 'kind', 'sport', 'eventDate', 'seat', 'qty', 'price', 'faceValue', 'methods',
+              'place', 'title', 'desc', 'imageCount', 'status', 'partnerId', 'hidden', 'views',
+              'favCount', 'chatCount', 'createdAt', 'updatedAt', 'bumpedAt'];
+    }
+    function validPost(d) {
+      return d.keys().hasOnly(postKeys())
+        && d.kind in ['sell', 'buy']
+        && d.sport in ['baseball', 'hockey', 'basketball', 'rugby', 'soccer', 'package']
+        && d.seat in ['ku', 'yu', 'general', 'etc']
+        && d.qty is int && d.qty >= 1 && d.qty <= 4
+        && d.faceValue is int && d.faceValue > 0 && d.faceValue <= 1000000
+        && d.price is int && d.price >= 0
+        && d.price <= d.faceValue                      // 정가 초과(암표) 금지
+        && d.methods is list && d.methods.size() >= 1 && d.methods.hasOnly(['meet', 'transfer', 'delivery'])
+        && d.place is string && d.place.size() <= 40
+        && d.title is string && d.title.size() >= 4 && d.title.size() <= 50
+        && d.desc is string && d.desc.size() <= 1000
+        && d.eventDate is string && d.eventDate.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')
+        && d.imageCount is int && d.imageCount >= 0 && d.imageCount <= 3
+        && d.status in ['open', 'reserved', 'done']
+        && (d.status != 'open' || d.partnerId == null)
+        && d.bumpedAt is int && d.updatedAt is int;
+    }
+    // 거래 상대는 이 글에 채팅한 사람이어야 한다
+    function validPartner(pid, d) {
+      return d.partnerId == null || exists(docPath('chats/' + pid + '_' + d.partnerId));
+    }
+    function postReadable(p) {
+      return p.hidden == false || (signedIn() && p.authorId == me()) || isAdmin();
+    }
+
+    match /posts/{pid} {
+      allow read: if postReadable(resource.data);
+      allow create: if active()
+        && request.resource.data.authorId == me()
+        && validPost(request.resource.data)
+        && request.resource.data.status == 'open'
+        && request.resource.data.hidden == false
+        && request.resource.data.views == 0
+        && request.resource.data.favCount == 0
+        && request.resource.data.chatCount == 0
+        && request.resource.data.createdAt is int;
+      allow update: if
+        // 작성자: 내용·상태 수정
+        (active() && resource.data.authorId == me()
+          && validPost(request.resource.data)
+          && validPartner(pid, request.resource.data)
+          && !changed().hasAny(['authorId', 'hidden', 'views', 'favCount', 'chatCount', 'createdAt']))
+        // 누구나: 조회수 +1
+        || (changed().hasOnly(['views']) && request.resource.data.views == resource.data.views + 1)
+        // 로그인 사용자: 찜 수 ±1
+        || (active() && changed().hasOnly(['favCount'])
+          && (request.resource.data.favCount == resource.data.favCount + 1
+              || request.resource.data.favCount == resource.data.favCount - 1))
+        // 채팅 시작: 채팅 수 +1
+        || (active() && changed().hasOnly(['chatCount'])
+          && request.resource.data.chatCount == resource.data.chatCount + 1
+          && existsAfter(docPath('chats/' + pid + '_' + me())))
+        // 관리자: 숨김 처리
+        || (isAdmin() && changed().hasOnly(['hidden']) && request.resource.data.hidden is bool);
+      allow delete: if (signedIn() && resource.data.authorId == me()) || isAdmin();
+    }
+
+    // 거래글 사진 (목록을 가볍게 하려고 글과 분리해 저장)
+    match /postImages/{pid} {
+      allow read: if exists(docPath('posts/' + pid)) && postReadable(get(docPath('posts/' + pid)).data);
+      allow create, update: if active()
+        && getAfter(docPath('posts/' + pid)).data.authorId == me()
+        && request.resource.data.keys().hasOnly(['images'])
+        && request.resource.data.images is list && request.resource.data.images.size() <= 3;
+      allow delete: if signedIn()
+        && (!exists(docPath('posts/' + pid)) || get(docPath('posts/' + pid)).data.authorId == me() || isAdmin());
+    }
+
+    // ---------- 채팅 ----------
+    function isMember(d) { return signedIn() && me() in d.members; }
+    match /chats/{cid} {
+      allow read: if resource == null || isMember(resource.data);
+      allow create: if active()
+        && request.resource.data.keys().hasOnly(['postId', 'postTitle', 'ownerId', 'otherId', 'members',
+                                                 'createdAt', 'lastAt', 'lastText', 'lastFrom', 'lastRead'])
+        && cid == request.resource.data.postId + '_' + me()
+        && request.resource.data.otherId == me()
+        && request.resource.data.ownerId == get(docPath('posts/' + request.resource.data.postId)).data.authorId
+        && request.resource.data.ownerId != me()
+        && request.resource.data.members == [request.resource.data.ownerId, me()];
+      allow update: if isMember(resource.data)
+        && !changed().hasAny(['postId', 'ownerId', 'otherId', 'members', 'createdAt']);
+
+      match /messages/{mid} {
+        allow read: if isMember(get(docPath('chats/' + cid)).data);
+        allow create: if active()
+          && isMember(get(docPath('chats/' + cid)).data)
+          && request.resource.data.keys().hasOnly(['from', 'text', 'at', 'system'])
+          && request.resource.data.from == me()
+          && request.resource.data.text is string
+          && request.resource.data.text.size() >= 1 && request.resource.data.text.size() <= 1000
+          && request.resource.data.at is int
+          && request.resource.data.system is bool
+          && (request.resource.data.system == false || get(docPath('chats/' + cid)).data.ownerId == me());
+      }
+    }
+
+    // ---------- 후기 ----------
+    function validReview(rid, d) {
+      let p = get(docPath('posts/' + d.postId)).data;
+      return rid == d.postId + '_' + me()
+        && d.keys().hasOnly(['postId', 'from', 'to', 'rating', 'text', 'at'])
+        && d.from == me()
+        && p.status == 'done' && p.partnerId != null
+        && ((me() == p.authorId && d.to == p.partnerId) || (me() == p.partnerId && d.to == p.authorId))
+        && d.rating is int && d.rating >= 1 && d.rating <= 5
+        && d.text is string && d.text.size() <= 200
+        && d.at is int;
+    }
+    match /reviews/{rid} {
+      allow read: if true;
+      allow create: if active() && validReview(rid, request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    // ---------- 신고 ----------
+    match /reports/{rid} {
+      allow create: if verified()
+        && request.resource.data.keys().hasOnly(['from', 'postId', 'userId', 'reason', 'detail', 'at', 'resolved'])
+        && request.resource.data.from == me()
+        && request.resource.data.reason is string && request.resource.data.reason.size() <= 30
+        && request.resource.data.detail is string && request.resource.data.detail.size() <= 300
+        && request.resource.data.resolved == false;
+      allow read: if isAdmin();
+      allow update: if isAdmin() && changed().hasOnly(['resolved']);
+    }
+  }
+}

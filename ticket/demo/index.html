@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="고려대·연세대 학생들이 고연전 티켓을 정가로 안전하게 양도·구매하는 장터">
+    <title>고연전 티켓 장터</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="topbar">
+        <div class="wrap topbar-in" id="topbar"></div>
+    </header>
+
+    <main class="wrap main" id="app" aria-live="polite"></main>
+
+    <footer class="footer">
+        <div class="wrap footer-in">
+            <p><strong>고연전 티켓 장터</strong> · 학생 간 개인 거래를 연결하는 게시판입니다. 거래 당사자 간 분쟁에 대한 책임은 각 당사자에게 있습니다.</p>
+            <p><a href="#/guide">이용 안내 · 사기 예방</a> · 정가 초과 재판매(암표)는 등록할 수 없습니다.</p>
+        </div>
+    </footer>
+
+    <div id="modal-root"></div>
+    <div id="toast-root" class="toast-root" role="status"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
